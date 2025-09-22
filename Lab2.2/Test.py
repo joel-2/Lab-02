@@ -1,6 +1,9 @@
 # lab2-2_starter.py
 
 LOGFILE = "sample_auth_small.log"  # change filename if needed
+List_ips=[]
+count=0
+Unique_list_ips=[]
 
 def simple_parser(line):
     """
@@ -10,9 +13,11 @@ def simple_parser(line):
     if " from " in line:
         parts = line.split() # splits the line into tokens, seperates by spaces by default
         try:
-            anchor = parts.index("port")    # Find the position of the token "port", our anchor
+            anchor = parts.index("from")    # Find the position of the token "port", our anchor
             port = parts[anchor+1]          # the port value will be next token, anchor+1
-            return port.strip()             # strip any trailing punctuation
+            List_ips.append(port.strip()) 
+           
+                        # strip any trailing punctuation
 
         except (ValueError, IndexError):
             return None
@@ -25,4 +30,11 @@ if __name__ == "__main__":
 
     with open(LOGFILE, "r") as f:
         for line in f:
-            print (simple_parser(line.strip()))
+            (simple_parser(line.strip()))
+            count+=1
+    Unique_list_ips=set(List_ips) #YOU FOOL IT CONVERTS IT INTO A SET RATHER THAN A LIST SO WHEN YOU GET TO USE IT CONVERT IT BACK TO A LIST!!!!!!!!!!!!!!!!!!!!
+    sorted_list= sorted(Unique_list_ips)
+    print("Lines Read is= ", count)
+    print("The Unique Ips= ", len(Unique_list_ips))
+    print(sorted_list[0:10])
+    
