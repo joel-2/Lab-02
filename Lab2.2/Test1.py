@@ -36,5 +36,6 @@ if __name__ == "__main__":
     sorted_list= sorted(Unique_list_ips)
     print("Lines Read is= ", count)
     print("The Unique Ips= ", len(Unique_list_ips))
-    print(sorted_list[0:10])
+    for i in range(10):
+        print(sorted_list[i])# prints the first 10 unique ips in different lines
     
