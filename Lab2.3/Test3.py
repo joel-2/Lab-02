@@ -2,6 +2,8 @@
 import json
 from collections import defaultdict
 from datetime import datetime
+from datetime import timedelta
+import matplotlib.pyplot as plt
 
 LOGFILE = "sample_auth_small.log"
 sorted_list=[]
@@ -51,5 +53,44 @@ if __name__ == "__main__":
         sorted_ts = sorted(ts) # sorting the timestamps
         formatted_ts = [t.strftime("%Y-%b-%d %H:%M:%S") for t in sorted_ts] # formatting the timestamps and putting int a list
         output[ip] = formatted_ts # storing the formatted timestamps in the output dictionary
-    print(output)
-    print(json.dumps(output, indent=4))
+    
+incidents = [] # make a list called incidents to store the results
+window = timedelta(minutes=10) #define the time delta window of 10 minutes
+for ip, times in per_ip_timestamps.items(): #iterate through the dictionary
+    times.sort() #sort timestamps
+    n = len(times) #get the length of the timestamps list
+    i = 0
+    while i < n:
+        j = i
+        while j + 1 < n and (times[j+1] - times[i]) <= window:
+            j += 1
+        count = j - i + 1
+        if count >= 5: # if there are 5 or more failed attempts in the window
+            incidents.append({
+                "ip": ip,
+                "count": count,
+                "first": times[i].isoformat(),
+                "last": times[j].isoformat()
+            })
+            # advance i past this cluster to avoid duplicate overlapping reports:
+            i = j + 1
+        else:
+            i += 1
+print(f"{len(incidents)} brute-force incidents found:")
+for i in incidents:
+    print(i)
+
+#make a bar chart of the top attacker IPs
+list_ips=[]
+list_count=[]
+for i in incidents:
+    list_ips.append(i["ip"])
+    list_count.append(i["count"])
+plt.figure(figsize=(12,5))
+plt.bar(list_ips, list_count)
+plt.title("Top attacker IPs")
+plt.xlabel("IP")
+plt.ylabel("Failed attempts")
+plt.tight_layout()
+plt.savefig("top_attackers.png")
+plt.show()
